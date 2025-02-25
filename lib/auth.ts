@@ -14,7 +14,6 @@ export class Auth {
 	): Promise<void> {
 		try {
 			const token = await JWT.sign(payload);
-			console.log("Created token:", token);
 
 			response.cookies.set({
 				name: this.TOKEN_NAME,
@@ -26,7 +25,6 @@ export class Auth {
 				path: "/",
 			});
 		} catch (error) {
-			console.error("Create Session Error:", error);
 			throw error;
 		}
 	}
@@ -51,18 +49,13 @@ export class Auth {
 	): Promise<JWTPayload | null> {
 		try {
 			const token = request.cookies.get(this.TOKEN_NAME)?.value;
-			console.log("Token from cookie:", token);
-
 			if (!token) {
-				console.log("No token found in cookies");
 				return null;
 			}
 
 			const user = await JWT.verify(token);
-			console.log("Verified user:", user);
 			return user;
 		} catch (error) {
-			console.error("Get Current User Error:", error);
 			return null;
 		}
 	}
@@ -72,7 +65,6 @@ export class Auth {
 	 */
 	static async isAuthenticated(request: NextRequest): Promise<boolean> {
 		const user = await this.getCurrentUser(request);
-		console.log("Is Authenticated User:", user);
 		return user !== null;
 	}
 

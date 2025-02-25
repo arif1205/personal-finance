@@ -22,7 +22,6 @@ export class JWT {
 				.setIssuedAt()
 				.sign(JWT_SECRET);
 		} catch (error) {
-			console.error("JWT Sign Error:", error);
 			throw new Error("Failed to sign JWT");
 		}
 	}
@@ -32,7 +31,6 @@ export class JWT {
 			const { payload } = await jose.jwtVerify(token, JWT_SECRET);
 			return payload as JWTPayload;
 		} catch (error) {
-			console.error("JWT Verify Error:", error);
 			throw new Error("Invalid token");
 		}
 	}
@@ -41,7 +39,6 @@ export class JWT {
 		try {
 			return jose.decodeJwt(token) as JWTPayload;
 		} catch (error) {
-			console.error("JWT Decode Error:", error);
 			return null;
 		}
 	}

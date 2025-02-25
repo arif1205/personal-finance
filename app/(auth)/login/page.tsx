@@ -20,8 +20,16 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/fetch-wrapper";
 
 const loginSchema = z.object({
-	email: z.string().min(1, "Email is required").email("Invalid email format"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
+	email: z
+		.string({
+			required_error: "Email is required",
+		})
+		.email("Invalid email format"),
+	password: z
+		.string({
+			required_error: "Password is required",
+		})
+		.min(6, "Password must be at least 6 characters"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -108,6 +116,7 @@ export default function LoginPage() {
 						<Input
 							id='password'
 							name='password'
+							placeholder='********'
 							type='password'
 							disabled={isSubmitting}
 							onChange={formik.handleChange}
