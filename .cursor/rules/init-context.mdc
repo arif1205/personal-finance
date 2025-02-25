@@ -1,0 +1,37 @@
+---
+description: Guidelines and best practice for building a nextjs project
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+- project description: This is a personal finance related project, where i can handle my all personal finance like cost management. loan management. there will be multiple account, user can login only, signup is hidden, user can login, then enters in the dashboard. the dashboard contains two types of things. Cost management like monthly cost and incomes etc. Second is loan managmeent, like a account to manage transactions between peoples. like My friend took 5000 from me, then he returned 2000, then Again i gave him 1000, he returned me 3000, still I owe him 1000. these types of transactions 
+
+- use the pnpm for default package manager
+- use shadcn for default ui library
+- my website will be in dark mode always 
+- the main pages and layouts and loadings will be inside app folder only. no other files or folders should be not be inside the app folder
+- /components folder should be use for all components 
+- for each page create a folder inside components folder to group that page related components 
+- for shared components, use /components/shared 
+- for ui components, use /components/ui 
+- for inputs, use /compoenents/ui/form-inputs 
+- use formik for form handler 
+- use zod with formik to validate the schema 
+- create .env.local file for storing the env values like db url
+- use strongly typed typescript for everything 
+- use the \lib folder or create to create libraries
+- use \hooks for custom hooks
+- use \config for custom configuration 
+- use the \types folder for introducing the types related files 
+- a component should be like this - first create a props interface - then component declaration with props interface
+- use css only inside [globals.css](mdc:app/globals.css)
+- update [tailwind.config.ts](mdc:tailwind.config.ts) if there is need to customize the css configuration 
+- if there is need any kind of state management, use redux toolkit 
+- for backend, use jwt token with cookies for authentication 
+- use the argon2 for hashing the password 
+- create a middleware to authenticate the routes 
+- \login route will be open, all the other should be authenticated 
+- group the routes using the best practice 
+
