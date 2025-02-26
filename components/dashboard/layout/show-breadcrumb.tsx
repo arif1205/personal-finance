@@ -26,8 +26,8 @@ const ShowBreadCrumb = () => {
 			// Create the URL for this breadcrumb
 			const url = `/${segments.slice(0, index + 1).join("/")}`;
 
-			// Format the segment text (capitalize and replace hyphens with spaces)
-			const text = segment
+			// Decode the segment and format the text (capitalize and replace hyphens with spaces)
+			const text = decodeURIComponent(segment)
 				.split("-")
 				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 				.join(" ");

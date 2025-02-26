@@ -40,7 +40,7 @@ export default function CreateLoanPage() {
 			initialBalance: 0,
 			type: "LEND",
 			transactionDetails: {
-				date: new Date().toISOString().split("T")[0],
+				date: new Date().toISOString(),
 				method: "CASH",
 				methodDetails: "",
 				transactionId: "",
@@ -130,8 +130,8 @@ export default function CreateLoanPage() {
 											<SelectValue placeholder='Select loan type' />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value='LEND'>I am lending</SelectItem>
-											<SelectItem value='BORROW'>I am borrowing</SelectItem>
+											<SelectItem value='LEND'>I am giving</SelectItem>
+											<SelectItem value='BORROW'>I am taking</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -188,8 +188,8 @@ export default function CreateLoanPage() {
 											formik.setFieldValue(
 												"transactionDetails.date",
 												newDate
-													? newDate.toISOString().split("T")[0]
-													: new Date().toISOString().split("T")[0]
+													? newDate.toISOString()
+													: new Date().toISOString()
 											);
 										}}
 										disabled={formik.isSubmitting}

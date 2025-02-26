@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
 	req: AuthenticatedRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ title: string }> }
 ) {
 	try {
 		const user = await withAuth(req);
@@ -13,9 +13,12 @@ export async function GET(
 			return user;
 		}
 
+		// Await the params before using its properties
+		const { title } = await params;
+
 		const loan = await db.loan.findUnique({
 			where: {
-				id: params.id,
+				title: title,
 				userId: user.user.id,
 			},
 			include: {

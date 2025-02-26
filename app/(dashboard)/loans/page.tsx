@@ -123,7 +123,7 @@ export default function LoansPage() {
 			) : (
 				<div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
 					{loans.map((loan) => (
-						<Link key={loan.id} href={`/loans/${loan.id}`}>
+						<Link key={loan.id} href={`/loans/${loan.title}`}>
 							<LoanSummaryCard
 								title={loan.title}
 								balance={loan.balance}

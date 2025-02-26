@@ -88,7 +88,7 @@ export default function DashboardPage() {
 							))
 					) : loans.length > 0 ? (
 						loans.map((loan) => (
-							<Link key={loan.id} href={`/loans/${loan.id}`}>
+							<Link key={loan.id} href={`/loans/${loan.title}`}>
 								<LoanSummaryCard
 									title={loan.title}
 									balance={loan.balance}
@@ -104,8 +104,6 @@ export default function DashboardPage() {
 					)}
 				</div>
 			</div>
-
-			<div className='min-h-[50vh] flex-1 rounded-xl bg-muted/100 md:min-h-min' />
 		</div>
 	);
 }

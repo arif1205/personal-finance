@@ -61,22 +61,22 @@ export default function LoanDetailsPage() {
 		const fetchLoan = async () => {
 			try {
 				setIsLoading(true);
-				const response = await api.get<LoanResponse>(`/loans/${params.id}`);
+
+				const response = await api.get<LoanResponse>(`/loans/${params.title}`);
 				if (response.success) {
 					setLoan(response.data.loan);
 				}
 			} catch (error) {
 				setError("Failed to fetch loan details");
-				console.error("Error fetching loan:", error);
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
-		if (params.id) {
+		if (params.title) {
 			fetchLoan();
 		}
-	}, [params.id]);
+	}, [params.title]);
 
 	if (isLoading) {
 		return (
@@ -126,7 +126,9 @@ export default function LoanDetailsPage() {
 				</Button>
 
 				<Button asChild>
-					<Link href={`/loans/${loan.id}/transaction/new`} className='gap-2'>
+					<Link
+						href={`/loans/${loan.title}/create-transaction`}
+						className='gap-2'>
 						<PlusIcon className='h-4 w-4' />
 						Add Transaction
 					</Link>
