@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { Auth } from "@/lib/auth";
 
 // Add paths that don't require authentication
-const publicPaths = ["/login"];
+const publicPaths = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
 	// Check if the path is public

@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/fetch-wrapper";
 import { useFormik } from "formik";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -136,19 +137,35 @@ export default function LoginPage() {
 					</div>
 				</CardContent>
 				<CardFooter>
-					<Button
-						type='submit'
-						className='w-full'
-						disabled={isSubmitting || !formik.isValid || !formik.dirty}>
-						{isSubmitting ? (
-							<span className='flex items-center gap-2'>
-								<span className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
-								Signing in...
-							</span>
-						) : (
-							"Sign in"
-						)}
-					</Button>
+					<div className='flex flex-col gap-4 w-full'>
+						<Button
+							type='submit'
+							className='w-full'
+							disabled={isSubmitting || !formik.isValid || !formik.dirty}>
+							{isSubmitting ? (
+								<span className='flex items-center gap-2'>
+									<span className='h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent' />
+									Signing in...
+								</span>
+							) : (
+								"Sign in"
+							)}
+						</Button>
+						<div className='text-center'>
+							<p>
+								Don't have an account?{" "}
+								<Link
+									href={`/register${
+										searchParams.get("from")
+											? `?from=${searchParams.get("from")}`
+											: ""
+									}`}
+									className='text-blue-500 hover:underline'>
+									Register here
+								</Link>
+							</p>
+						</div>
+					</div>
 				</CardFooter>
 			</form>
 		</Card>
