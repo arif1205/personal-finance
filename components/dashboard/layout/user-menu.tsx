@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/lib/fetch-wrapper";
 import { LogOutIcon, UserIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -45,7 +46,14 @@ export function UserMenu() {
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align='end' className='w-56'>
-				<DropdownMenuLabel>My Profile</DropdownMenuLabel>
+				<DropdownMenuLabel>My Account</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<Link href='/profile' className='flex items-center cursor-pointer'>
+						<UserIcon className='mr-2 h-4 w-4' />
+						Profile Settings
+					</Link>
+				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem
 					className='text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer'
