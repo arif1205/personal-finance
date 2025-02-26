@@ -1,50 +1,52 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader } from "@/components/ui/card";
 import { LoanSummaryCard } from "@/components/dashboard/loan-summary-card";
 import { api } from "@/lib/fetch-wrapper";
+import { LoanStatus, TransactionType } from "@prisma/client";
+import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Loan {
 	id: string;
 	title: string;
-	currentBalance: number;
-	lastTransaction?: {
-		date: string;
+	description: string | null;
+	balance: number;
+	status: LoanStatus;
+	createdAt: string;
+	updatedAt: string;
+	transactions: Array<{
+		id: string;
 		amount: number;
+		type: TransactionType;
+		date: string;
+	}>;
+}
+
+interface RecentLoansResponse {
+	success: boolean;
+	data: {
+		loans: Loan[];
 	};
 }
 
 export default function DashboardPage() {
-	const [recentLoans, setRecentLoans] = useState<Loan[]>([]);
+	const [loans, setLoans] = useState<Loan[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const fetchRecentLoans = async () => {
 			try {
-				// const response = await api.get("/loans/recent");
-				// if (response.success) {
-				// 	setRecentLoans(response.data.loans);
-				// }
-
-				setRecentLoans([
-					{
-						id: "1",
-						title: "Loan 1",
-						currentBalance: 1000,
-					},
-					{
-						id: "2",
-						title: "Loan 2",
-						currentBalance: -2000,
-					},
-					{
-						id: "3",
-						title: "Loan 3",
-						currentBalance: 3000,
-					},
-				]);
+				setIsLoading(true);
+				const response = await api.get<RecentLoansResponse>("/loans/recent");
+				if (response.success) {
+					setLoans(response.data.loans);
+				}
 			} catch (error) {
+				setError("Failed to fetch recent loans");
 				console.error("Failed to fetch recent loans:", error);
 			} finally {
 				setIsLoading(false);
@@ -56,39 +58,54 @@ export default function DashboardPage() {
 
 	return (
 		<div className='space-y-6'>
-			<div className='flex flex-1 flex-col gap-4 p-4'>
-				<h2 className='text-lg font-semibold'>Recent Loans</h2>
-				<div className='grid auto-rows-min gap-4 md:grid-cols-4 lg:grid-cols-5'>
+			<div className='space-y-4'>
+				<div className='flex items-center justify-between'>
+					<h2 className='text-xl font-bold'>Recent Loans</h2>
+					{loans.length > 0 && (
+						<Button variant='ghost' asChild>
+							<Link href='/loans' className='flex items-center gap-2'>
+								View all
+								<ArrowRightIcon className='h-4 w-4' />
+							</Link>
+						</Button>
+					)}
+				</div>
+
+				<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
 					{isLoading ? (
-						// Loading skeletons
-						Array(3)
+						Array(4)
 							.fill(0)
 							.map((_, i) => (
-								<div
-									key={i}
-									className='aspect-video animate-pulse rounded-xl bg-muted/50'
-								/>
+								<Card key={i} className='animate-pulse'>
+									<CardHeader className='space-y-2'>
+										<div className='h-4 w-1/2 rounded bg-muted'></div>
+										<div className='h-3 w-1/3 rounded bg-muted'></div>
+									</CardHeader>
+									<div className='p-6'>
+										<div className='h-8 w-3/4 rounded bg-muted'></div>
+									</div>
+								</Card>
 							))
-					) : recentLoans.length > 0 ? (
-						// Show recent loans
-						recentLoans.map((loan) => (
-							<Link href={`/loans/${loan.id}`} key={loan.id}>
+					) : loans.length > 0 ? (
+						loans.map((loan) => (
+							<Link key={loan.id} href={`/loans/${loan.id}`}>
 								<LoanSummaryCard
 									title={loan.title}
-									amount={loan.currentBalance}
-									lastTransaction={loan.lastTransaction}
+									balance={loan.balance}
+									createdAt={loan.createdAt}
+									lastTransaction={loan.transactions[0]}
 								/>
 							</Link>
 						))
 					) : (
-						// No loans placeholder
-						<div className='col-span-3 flex aspect-video items-center justify-center rounded-xl bg-muted/50'>
+						<div className='col-span-full flex w-full items-center justify-center rounded-xl bg-muted/50 py-8'>
 							<p className='text-muted-foreground'>No recent loan activity</p>
 						</div>
 					)}
 				</div>
-				<div className='min-h-[50vh] flex-1 rounded-xl bg-muted/100 md:min-h-min' />
 			</div>
+
+			<div className='min-h-[50vh] flex-1 rounded-xl bg-muted/100 md:min-h-min' />
 		</div>
 	);
 }

@@ -117,3 +117,61 @@ export class Auth {
 		return authHeader.split(" ")[1];
 	}
 }
+
+export type AuthenticatedRequest = NextRequest & {
+	user: {
+		id: string;
+		email: string;
+		name?: string | null;
+	};
+};
+
+export async function authenticateRequest(
+	req: NextRequest
+): Promise<
+	| { success: true; user: { id: string; email: string; name?: string | null } }
+	| { success: false; error: string }
+> {
+	try {
+		const token = req.cookies.get("token")?.value;
+
+		if (!token) {
+			return { success: false, error: "No token provided" };
+		}
+
+		const decoded = await JWT.verify(token);
+
+		if (!decoded || !decoded.userId) {
+			return { success: false, error: "Invalid token" };
+		}
+
+		return {
+			success: true,
+			user: {
+				id: decoded.userId,
+				email: decoded.email,
+				name: decoded.name,
+			},
+		};
+	} catch (error) {
+		return { success: false, error: "Authentication failed" };
+	}
+}
+
+export async function withAuth(
+	req: NextRequest
+): Promise<AuthenticatedRequest | NextResponse> {
+	const auth = await authenticateRequest(req);
+
+	if (!auth.success) {
+		return NextResponse.json(
+			{ success: false, message: auth.error },
+			{ status: 401 }
+		);
+	}
+
+	const authenticatedReq = req as AuthenticatedRequest;
+	authenticatedReq.user = auth.user;
+
+	return authenticatedReq;
+}

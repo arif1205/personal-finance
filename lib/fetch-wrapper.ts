@@ -15,16 +15,20 @@ class FetchWrapper {
 	}
 
 	private async handleResponse<T>(response: Response): Promise<T> {
-		const data = await response.json();
+		const contentType = response.headers.get("content-type");
+		const isJson = contentType?.includes("application/json");
+		const data = isJson ? await response.json() : await response.text();
 
 		if (!response.ok) {
-			const error: ApiError = new Error(data.message || "An error occurred");
+			const error: ApiError = new Error(
+				typeof data === "object" ? data.message : "An error occurred"
+			);
 			error.status = response.status;
 			error.data = data;
 			throw error;
 		}
 
-		return data;
+		return data as T;
 	}
 
 	private createUrl(endpoint: string, params?: Record<string, string>): string {
@@ -65,13 +69,15 @@ class FetchWrapper {
 		options: FetchOptions = {}
 	): Promise<T> {
 		const { params, headers, ...rest } = options;
+
 		const response = await fetch(this.createUrl(endpoint, params), {
 			method: "POST",
 			headers: {
 				...this.getDefaultHeaders(),
 				...headers,
 			},
-			body: data ? JSON.stringify(data) : undefined,
+			body: JSON.stringify(data),
+			credentials: "include",
 			...rest,
 		});
 
@@ -85,12 +91,13 @@ class FetchWrapper {
 	): Promise<T> {
 		const { params, headers, ...rest } = options;
 		const response = await fetch(this.createUrl(endpoint, params), {
-			method: "PUT",
+			method: "PATCH",
 			headers: {
 				...this.getDefaultHeaders(),
 				...headers,
 			},
-			body: data ? JSON.stringify(data) : undefined,
+			body: JSON.stringify(data),
+			credentials: "include",
 			...rest,
 		});
 
@@ -105,6 +112,7 @@ class FetchWrapper {
 				...this.getDefaultHeaders(),
 				...headers,
 			},
+			credentials: "include",
 			...rest,
 		});
 

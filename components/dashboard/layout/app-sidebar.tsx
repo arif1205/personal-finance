@@ -40,10 +40,6 @@ const data = {
 					title: "Create New Loan",
 					url: "/loans/create",
 				},
-				{
-					title: "Create Transaction",
-					url: "/loans/transactions",
-				},
 			],
 		},
 	],
