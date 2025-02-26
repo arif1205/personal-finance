@@ -68,7 +68,7 @@ export default function LoginPage() {
 
 				toast.success("Logged in successfully");
 				resetForm();
-				const redirectTo = searchParams.get("from") || "/dashboard";
+				const redirectTo = searchParams.get("from") || "/";
 				router.push(redirectTo);
 			} catch (error) {
 				toast.error(error instanceof Error ? error.message : "Login failed");

@@ -1,8 +1,8 @@
 "use client";
 
+import { LoanSummaryCard } from "@/components/dashboard/loan-summary-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { LoanSummaryCard } from "@/components/dashboard/loan-summary-card";
 import { api } from "@/lib/fetch-wrapper";
 import { LoanStatus, TransactionType } from "@prisma/client";
 import { ArrowRightIcon } from "lucide-react";
@@ -35,7 +35,6 @@ interface RecentLoansResponse {
 export default function DashboardPage() {
 	const [loans, setLoans] = useState<Loan[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const fetchRecentLoans = async () => {
@@ -46,11 +45,7 @@ export default function DashboardPage() {
 					setLoans(response.data.loans);
 				}
 			} catch (error) {
-				setError(
-					error instanceof Error
-						? error.message
-						: "Failed to fetch recent loans"
-				);
+				console.error(error);
 			} finally {
 				setIsLoading(false);
 			}
