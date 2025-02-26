@@ -61,8 +61,10 @@ export default function CreateLoanPage() {
 
 				toast.success("Loan created successfully");
 				router.push("/loans/" + response.data.id);
-			} catch (error: any) {
-				toast.error(error.message || "Failed to create loan");
+			} catch (error) {
+				toast.error(
+					error instanceof Error ? error.message : "Failed to create loan"
+				);
 			}
 		},
 	});

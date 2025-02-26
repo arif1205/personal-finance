@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,8 +66,12 @@ export default function NewTransactionPage() {
 				toast.success("Transaction added successfully");
 				router.push(`/loans/${params.title}`);
 				router.refresh();
-			} catch (error: any) {
-				toast.error(error.message || "Failed to create transaction");
+			} catch (error) {
+				toast.error(
+					error instanceof Error
+						? error.message
+						: "Failed to create transaction"
+				);
 			}
 		},
 	});

@@ -56,6 +56,7 @@ export class Auth {
 			const user = await JWT.verify(token);
 			return user;
 		} catch (error) {
+			console.error(error);
 			return null;
 		}
 	}
@@ -83,6 +84,7 @@ export class Auth {
 			const user = await JWT.verify(token);
 			return user;
 		} catch (error) {
+			console.error(error);
 			return null;
 		}
 	}
@@ -154,6 +156,7 @@ export async function authenticateRequest(
 			},
 		};
 	} catch (error) {
+		console.error(error);
 		return { success: false, error: "Authentication failed" };
 	}
 }

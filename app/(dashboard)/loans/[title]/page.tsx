@@ -12,9 +12,9 @@ import { api } from "@/lib/fetch-wrapper";
 import { LoanStatus, TransactionMethod, TransactionType } from "@prisma/client";
 import { format } from "date-fns";
 import {
+	ArrowDownIcon,
 	ArrowLeftIcon,
 	ArrowUpIcon,
-	ArrowDownIcon,
 	PlusIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -67,7 +67,11 @@ export default function LoanDetailsPage() {
 					setLoan(response.data.loan);
 				}
 			} catch (error) {
-				setError("Failed to fetch loan details");
+				setError(
+					error instanceof Error
+						? error.message
+						: "Failed to fetch loan details"
+				);
 			} finally {
 				setIsLoading(false);
 			}

@@ -50,7 +50,7 @@ const ShowBreadCrumb = () => {
 				<BreadcrumbSeparator />
 
 				{/* Dynamic breadcrumbs */}
-				{breadcrumbs.map((breadcrumb, index) => (
+				{breadcrumbs.map((breadcrumb) => (
 					<React.Fragment key={breadcrumb.url}>
 						<BreadcrumbItem>
 							{breadcrumb.isLast ? (

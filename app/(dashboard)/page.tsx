@@ -46,8 +46,11 @@ export default function DashboardPage() {
 					setLoans(response.data.loans);
 				}
 			} catch (error) {
-				setError("Failed to fetch recent loans");
-				console.error("Failed to fetch recent loans:", error);
+				setError(
+					error instanceof Error
+						? error.message
+						: "Failed to fetch recent loans"
+				);
 			} finally {
 				setIsLoading(false);
 			}

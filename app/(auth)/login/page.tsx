@@ -1,13 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { z } from "zod";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
 	Card,
 	CardContent,
@@ -16,8 +9,15 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/fetch-wrapper";
+import { useFormik } from "formik";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 const loginSchema = z.object({
 	email: z
@@ -70,8 +70,8 @@ export default function LoginPage() {
 				resetForm();
 				const redirectTo = searchParams.get("from") || "/dashboard";
 				router.push(redirectTo);
-			} catch (error: any) {
-				toast.error("Login failed");
+			} catch (error) {
+				toast.error(error instanceof Error ? error.message : "Login failed");
 			} finally {
 				setIsSubmitting(false);
 			}

@@ -25,7 +25,7 @@ export async function GET(req: AuthenticatedRequest) {
 		};
 
 		// Get loans with pagination
-		const [loans, total] = await Promise.all([
+		const [loans] = await Promise.all([
 			db.loan.findMany({
 				where,
 				orderBy: {
