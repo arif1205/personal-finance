@@ -153,7 +153,7 @@ export default function LoginPage() {
 						</Button>
 						<div className='text-center'>
 							<p>
-								Don't have an account?{" "}
+								Don&apos;t have an account?{" "}
 								<Link
 									href={`/register${
 										searchParams.get("from")
