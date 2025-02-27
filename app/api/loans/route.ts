@@ -96,7 +96,7 @@ export async function POST(req: AuthenticatedRequest) {
 								method: validatedData.transactionDetails.method,
 								methodDetails: validatedData.transactionDetails.methodDetails,
 								transactionId: validatedData.transactionDetails.transactionId,
-								description: "Initial transaction",
+								description: validatedData.transactionDetails.description,
 							},
 						},
 					},
@@ -113,7 +113,7 @@ export async function POST(req: AuthenticatedRequest) {
 			success: true,
 			message: "Loan created successfully",
 			data: {
-				id: result.id,
+				title: result.title,
 			},
 		});
 	} catch (error) {

@@ -44,6 +44,7 @@ export default function CreateLoanPage() {
 				method: "CASH",
 				methodDetails: "",
 				transactionId: "",
+				description: "",
 			},
 		},
 		validationSchema: toFormikValidationSchema(createLoanSchema),
@@ -52,7 +53,7 @@ export default function CreateLoanPage() {
 				const response = await api.post<{
 					success: boolean;
 					message: string;
-					data: { id: string };
+					data: { title: string };
 				}>("/loans", values);
 
 				if (!response.success) {
@@ -60,7 +61,7 @@ export default function CreateLoanPage() {
 				}
 
 				toast.success("Loan created successfully");
-				router.push("/loans/" + response.data.id);
+				router.push("/loans/" + response.data.title);
 			} catch (error) {
 				toast.error(
 					error instanceof Error ? error.message : "Failed to create loan"
@@ -233,6 +234,21 @@ export default function CreateLoanPage() {
 										</SelectContent>
 									</Select>
 								</div>
+							</div>
+
+							<div className='space-y-2'>
+								<Label htmlFor='transactionDetails.description'>
+									Transaction Description (Optional)
+								</Label>
+								<Textarea
+									id='transactionDetails.description'
+									name='transactionDetails.description'
+									placeholder='Describe the purpose or details of this transaction'
+									disabled={formik.isSubmitting}
+									onChange={formik.handleChange}
+									onBlur={formik.handleBlur}
+									value={formik.values.transactionDetails.description || ""}
+								/>
 							</div>
 
 							<div className='space-y-2'>

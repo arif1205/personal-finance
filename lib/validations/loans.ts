@@ -20,7 +20,14 @@ export const createLoanSchema = z.object({
 		]),
 		methodDetails: z.string().optional(),
 		transactionId: z.string().optional(),
+		description: z.string().optional(),
 	}),
 });
 
+export const editLoanSchema = z.object({
+	title: z.string().min(1, "Title is required").max(255, "Title is too long"),
+	description: z.string().optional(),
+});
+
 export type CreateLoanFormValues = z.infer<typeof createLoanSchema>;
+export type EditLoanFormValues = z.infer<typeof editLoanSchema>;

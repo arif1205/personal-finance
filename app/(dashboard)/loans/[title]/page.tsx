@@ -1,5 +1,16 @@
 "use client";
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -8,6 +19,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { DeleteAlert } from "@/components/ui/delete-alert";
 import { api } from "@/lib/fetch-wrapper";
 import { LoanStatus, TransactionMethod, TransactionType } from "@prisma/client";
 import { format } from "date-fns";
@@ -15,11 +27,14 @@ import {
 	ArrowDownIcon,
 	ArrowLeftIcon,
 	ArrowUpIcon,
+	PencilIcon,
 	PlusIcon,
+	TrashIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Transaction {
 	id: string;
@@ -56,6 +71,7 @@ export default function LoanDetailsPage() {
 	const [loan, setLoan] = useState<Loan | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	useEffect(() => {
 		const fetchLoan = async () => {
@@ -81,6 +97,27 @@ export default function LoanDetailsPage() {
 			fetchLoan();
 		}
 	}, [params.title]);
+
+	const handleDelete = async () => {
+		try {
+			setIsDeleting(true);
+			const response = await api.delete<{ success: boolean; message: string }>(
+				`/loans/${params.title}`
+			);
+
+			if (!response.success) {
+				throw new Error(response.message);
+			}
+
+			toast.success("Loan deleted successfully");
+			router.push("/loans");
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : "Failed to delete loan"
+			);
+			setIsDeleting(false);
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -129,14 +166,45 @@ export default function LoanDetailsPage() {
 					</Link>
 				</Button>
 
-				<Button asChild>
-					<Link
-						href={`/loans/${loan.title}/create-transaction`}
-						className='gap-2'>
-						<PlusIcon className='h-4 w-4' />
-						Add Transaction
-					</Link>
-				</Button>
+				<div className='flex items-center gap-2'>
+					<DeleteAlert
+						title='Delete Loan'
+						description={
+							<>
+								Are you sure you want to delete <strong>{loan.title}</strong>?
+								This action cannot be undone and will delete all associated
+								transactions.
+								{loan.balance !== 0 && (
+									<p className='mt-2 font-medium text-destructive'>
+										Warning: This loan has an outstanding balance of{" "}
+										{loan.balance.toLocaleString("en-US", {
+											style: "currency",
+											currency: "BDT",
+										})}
+									</p>
+								)}
+							</>
+						}
+						deleteText='Delete Loan'
+						isDeleting={isDeleting}
+						onDelete={handleDelete}
+					/>
+
+					<Button variant='outline' asChild>
+						<Link href={`/loans/${loan.title}/edit`} className='gap-2'>
+							<PencilIcon className='h-4 w-4' />
+							Edit Loan
+						</Link>
+					</Button>
+					<Button asChild>
+						<Link
+							href={`/loans/${loan.title}/create-transaction`}
+							className='gap-2'>
+							<PlusIcon className='h-4 w-4' />
+							Add Transaction
+						</Link>
+					</Button>
+				</div>
 			</div>
 
 			<Card>
@@ -196,10 +264,15 @@ export default function LoanDetailsPage() {
 														: "Payment Received"}
 												</p>
 												<p className='text-sm text-muted-foreground'>
-													via {transaction.method}
+													Method: {transaction.method}
 													{transaction.methodDetails &&
 														` (${transaction.methodDetails})`}
 												</p>
+												{transaction.description && (
+													<p className='text-sm text-muted-foreground'>
+														Details: {transaction.description}
+													</p>
+												)}
 												{transaction.transactionId && (
 													<p className='text-sm text-muted-foreground'>
 														Transaction ID: {transaction.transactionId}
@@ -210,18 +283,73 @@ export default function LoanDetailsPage() {
 												</p>
 											</div>
 										</div>
-										<p
-											className={`font-medium ${
-												transaction.type === "CREDIT"
-													? "text-emerald-500"
-													: "text-red-500"
-											}`}>
-											{transaction.type === "CREDIT" ? "+" : "-"}{" "}
-											{transaction.amount.toLocaleString("en-US", {
-												style: "currency",
-												currency: "BDT",
-											})}
-										</p>
+										<div className='flex items-center gap-4'>
+											<p
+												className={`font-medium ${
+													transaction.type === "CREDIT"
+														? "text-emerald-500"
+														: "text-red-500"
+												}`}>
+												{transaction.type === "CREDIT" ? "+" : "-"}{" "}
+												{transaction.amount.toLocaleString("en-US", {
+													style: "currency",
+													currency: "BDT",
+												})}
+											</p>
+											<div className='flex items-center gap-2'>
+												<Button variant='default' size='icon' asChild>
+													<Link
+														href={`/loans/${loan.title}/transaction/${transaction.id}/edit`}
+														className='text-muted-foreground hover:text-foreground'>
+														<PencilIcon className='h-4 w-4' />
+													</Link>
+												</Button>
+												<DeleteAlert
+													title='Delete Transaction'
+													description={
+														<>
+															Are you sure you want to delete this transaction?
+															This action cannot be undone.
+															<p className='mt-2 font-medium text-destructive'>
+																Warning: This will{" "}
+																{transaction.type === "CREDIT"
+																	? "decrease"
+																	: "increase"}{" "}
+																the loan balance by{" "}
+																{transaction.amount.toLocaleString("en-US", {
+																	style: "currency",
+																	currency: "BDT",
+																})}
+															</p>
+														</>
+													}
+													deleteText='Delete Transaction'
+													onDelete={async () => {
+														try {
+															const response = await api.delete<{
+																success: boolean;
+																message: string;
+															}>(
+																`/loans/${loan.title}/transaction/${transaction.id}`
+															);
+
+															if (!response.success) {
+																throw new Error(response.message);
+															}
+
+															toast.success("Transaction deleted successfully");
+															router.refresh();
+														} catch (error) {
+															toast.error(
+																error instanceof Error
+																	? error.message
+																	: "Failed to delete transaction"
+															);
+														}
+													}}
+												/>
+											</div>
+										</div>
 									</div>
 								))}
 							</div>
