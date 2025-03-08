@@ -4,26 +4,10 @@ import { LoanSummaryCard } from "@/components/dashboard/loan-summary-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { api } from "@/lib/fetch-wrapper";
-import { LoanStatus, TransactionType } from "@prisma/client";
+import { Loan } from "@/types";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-interface Loan {
-	id: string;
-	title: string;
-	description: string | null;
-	balance: number;
-	status: LoanStatus;
-	createdAt: string;
-	updatedAt: string;
-	transactions: Array<{
-		id: string;
-		amount: number;
-		type: TransactionType;
-		date: string;
-	}>;
-}
 
 interface RecentLoansResponse {
 	success: boolean;
@@ -92,6 +76,7 @@ export default function DashboardPage() {
 									balance={loan.balance}
 									createdAt={loan.createdAt}
 									lastTransaction={loan.transactions[0]}
+									currency={loan.user?.currency || "BDT"}
 								/>
 							</Link>
 						))

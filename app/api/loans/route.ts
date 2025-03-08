@@ -38,6 +38,7 @@ export async function GET(req: AuthenticatedRequest) {
 						},
 						take: 1,
 					},
+					user: true,
 				},
 			}),
 			db.loan.count({ where }),
@@ -102,6 +103,7 @@ export async function POST(req: AuthenticatedRequest) {
 					},
 					include: {
 						transactions: true,
+						user: true,
 					},
 				});
 

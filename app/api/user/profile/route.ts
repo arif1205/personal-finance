@@ -4,10 +4,12 @@ import { Hash } from "@/lib/hash";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Currency } from "@prisma/client";
 
 const updateProfileSchema = z
 	.object({
-		name: z.string().min(2, "Name must be at least 2 characters"),
+		name: z.string().min(2, "Name must be at least 2 characters").optional(),
+		currency: z.nativeEnum(Currency).optional(),
 		currentPassword: z.string().optional(),
 		newPassword: z.string().optional(),
 		confirmPassword: z.string().optional(),
@@ -47,6 +49,7 @@ export async function GET(req: AuthenticatedRequest) {
 			select: {
 				name: true,
 				email: true,
+				currency: true,
 			},
 		});
 
@@ -60,6 +63,7 @@ export async function GET(req: AuthenticatedRequest) {
 			successResponse({
 				name: dbUser.name,
 				email: dbUser.email,
+				currency: dbUser.currency,
 			}),
 			{ status: 200 }
 		);
@@ -110,7 +114,8 @@ export async function PATCH(req: AuthenticatedRequest) {
 
 		// Update user profile
 		const updateData: any = {
-			name: validatedData.name,
+			...(validatedData.name && { name: validatedData.name }),
+			...(validatedData.currency && { currency: validatedData.currency }),
 		};
 
 		// If new password is provided, hash it

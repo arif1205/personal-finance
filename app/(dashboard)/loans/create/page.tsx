@@ -29,6 +29,7 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { SectionDivider } from "@/components/ui/section-divider";
 
 export default function CreateLoanPage() {
 	const router = useRouter();
@@ -119,6 +120,10 @@ export default function CreateLoanPage() {
 								/>
 							</div>
 
+							<div className=''>
+								<SectionDivider>Initial Transaction</SectionDivider>
+							</div>
+
 							<div className='grid gap-4 md:grid-cols-2'>
 								<div className='space-y-2'>
 									<Label htmlFor='type'>Loan Type</Label>
@@ -176,8 +181,6 @@ export default function CreateLoanPage() {
 
 						{/* Transaction Details */}
 						<div className='space-y-4'>
-							<h3 className='font-medium'>Transaction Details</h3>
-
 							<div className='grid gap-4 md:grid-cols-2'>
 								<div className='space-y-2'>
 									<Label>Transaction Date</Label>

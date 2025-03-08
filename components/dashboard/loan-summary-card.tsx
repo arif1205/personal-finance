@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { TransactionType } from "@prisma/client";
+import { Currency, TransactionType } from "@prisma/client";
 
 interface LoanSummaryCardProps {
 	title: string;
@@ -21,6 +21,7 @@ interface LoanSummaryCardProps {
 		type: TransactionType;
 	};
 	className?: string;
+	currency: Currency;
 }
 
 export function LoanSummaryCard({
@@ -29,6 +30,7 @@ export function LoanSummaryCard({
 	createdAt,
 	lastTransaction,
 	className,
+	currency,
 }: LoanSummaryCardProps) {
 	return (
 		<Card
@@ -48,13 +50,13 @@ export function LoanSummaryCard({
 			<CardContent>
 				<div className='space-y-2'>
 					<div
-						className={cn(
-							"text-2xl font-bold",
-							balance > 0 ? "text-emerald-500" : "text-red-500"
-						)}>
+						className={cn("text-2xl font-bold", {
+							"text-emerald-500": balance > 0,
+							"text-red-500": balance < 0,
+						})}>
 						{balance.toLocaleString("en-US", {
 							style: "currency",
-							currency: "BDT",
+							currency: currency || "BDT",
 						})}
 					</div>
 					{lastTransaction && (

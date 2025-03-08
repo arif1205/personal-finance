@@ -13,22 +13,7 @@ import {
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { LoanSummaryCard } from "@/components/dashboard/loan-summary-card";
-
-interface Loan {
-	id: string;
-	title: string;
-	description: string | null;
-	balance: number;
-	status: LoanStatus;
-	createdAt: string;
-	updatedAt: string;
-	transactions: Array<{
-		id: string;
-		amount: number;
-		type: TransactionType;
-		date: string;
-	}>;
-}
+import { Loan } from "@/types";
 
 interface LoansResponse {
 	success: boolean;
@@ -60,8 +45,6 @@ export default function LoansPage() {
 
 		fetchLoans();
 	}, []);
-
-	console.log(loans);
 
 	if (isLoading) {
 		return (
@@ -129,6 +112,7 @@ export default function LoansPage() {
 								balance={loan.balance}
 								createdAt={loan.createdAt}
 								lastTransaction={loan.transactions[0]}
+								currency={loan.user?.currency || "BDT"}
 							/>
 						</Link>
 					))}

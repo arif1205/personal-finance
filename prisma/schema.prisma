@@ -13,13 +13,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum Currency {
+  BDT
+  USD
+  PKR
+  INR
+  LKR
+  EUR
+  GBP
+  NOK
+  SEK
+  DKK
+}
+
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String?
-  email     String   @unique
+  email     String     @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status    UserStatus @default(ACTIVE)
+  currency  Currency   @default(BDT)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   loans     Loan[]
 }
 

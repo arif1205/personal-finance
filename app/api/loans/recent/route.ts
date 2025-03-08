@@ -27,6 +27,7 @@ export async function GET(req: AuthenticatedRequest) {
 					},
 					take: 1,
 				},
+				user: true,
 			},
 			take: 4,
 		});

@@ -1,16 +1,5 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -21,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { DeleteAlert } from "@/components/ui/delete-alert";
 import { api } from "@/lib/fetch-wrapper";
-import { LoanStatus, TransactionMethod, TransactionType } from "@prisma/client";
+import { Loan, LoanResponse } from "@/types";
 import { format } from "date-fns";
 import {
 	ArrowDownIcon,
@@ -29,41 +18,11 @@ import {
 	ArrowUpIcon,
 	PencilIcon,
 	PlusIcon,
-	TrashIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
-interface Transaction {
-	id: string;
-	amount: number;
-	type: TransactionType;
-	date: string;
-	description?: string | null;
-	method: TransactionMethod;
-	methodDetails?: string | null;
-	transactionId?: string | null;
-}
-
-interface Loan {
-	id: string;
-	title: string;
-	description: string | null;
-	balance: number;
-	status: LoanStatus;
-	createdAt: string;
-	updatedAt: string;
-	transactions: Transaction[];
-}
-
-interface LoanResponse {
-	success: boolean;
-	data: {
-		loan: Loan;
-	};
-}
 
 export default function LoanDetailsPage() {
 	const params = useParams();
@@ -179,7 +138,7 @@ export default function LoanDetailsPage() {
 										Warning: This loan has an outstanding balance of{" "}
 										{loan.balance.toLocaleString("en-US", {
 											style: "currency",
-											currency: "BDT",
+											currency: loan.user?.currency || "BDT",
 										})}
 									</p>
 								)}
@@ -228,7 +187,7 @@ export default function LoanDetailsPage() {
 							}`}>
 							{loan.balance.toLocaleString("en-US", {
 								style: "currency",
-								currency: "BDT",
+								currency: loan.user?.currency || "BDT",
 							})}
 						</p>
 						<p className='text-sm text-muted-foreground'>
@@ -293,7 +252,7 @@ export default function LoanDetailsPage() {
 												{transaction.type === "CREDIT" ? "+" : "-"}{" "}
 												{transaction.amount.toLocaleString("en-US", {
 													style: "currency",
-													currency: "BDT",
+													currency: loan.user?.currency || "BDT",
 												})}
 											</p>
 											<div className='flex items-center gap-2'>
@@ -318,7 +277,7 @@ export default function LoanDetailsPage() {
 																the loan balance by{" "}
 																{transaction.amount.toLocaleString("en-US", {
 																	style: "currency",
-																	currency: "BDT",
+																	currency: loan.user?.currency || "BDT",
 																})}
 															</p>
 														</>

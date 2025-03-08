@@ -1,32 +1,27 @@
+import { Currency } from "@prisma/client";
 import { z } from "zod";
 
-export const updateProfileSchema = z
+// Schema for updating profile name
+export const updateNameSchema = z.object({
+	name: z.string().min(2, "Name must be at least 2 characters"),
+	currency: z.nativeEnum(Currency, {
+		message: "Currency is required",
+	}),
+});
+
+// Schema for changing password
+export const changePasswordSchema = z
 	.object({
-		name: z.string().min(2, "Name must be at least 2 characters"),
-		currentPassword: z.string().optional(),
-		newPassword: z.string().optional(),
-		confirmPassword: z.string().optional(),
+		currentPassword: z.string().min(1, "Current password is required"),
+		newPassword: z
+			.string()
+			.min(6, "New password must be at least 6 characters"),
+		confirmPassword: z.string().min(1, "Please confirm your new password"),
 	})
-	.refine(
-		(data) => {
-			const hasCurrentPassword = !!data.currentPassword;
-			const hasNewPassword = !!data.newPassword;
-			const hasConfirmPassword = !!data.confirmPassword;
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	});
 
-			if (hasCurrentPassword || hasNewPassword || hasConfirmPassword) {
-				if (!hasCurrentPassword) return false;
-				if (!hasNewPassword) return false;
-				if (!hasConfirmPassword) return false;
-				if (data.newPassword !== data.confirmPassword) return false;
-				if (data.newPassword && data.newPassword.length < 6) return false;
-			}
-
-			return true;
-		},
-		{
-			message:
-				"Please fill all password fields and ensure new passwords match and are at least 6 characters",
-		}
-	);
-
-export type UpdateProfileRequest = z.infer<typeof updateProfileSchema>;
+export type UpdateNameRequest = z.infer<typeof updateNameSchema>;
+export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
