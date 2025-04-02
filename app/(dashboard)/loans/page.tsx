@@ -104,18 +104,66 @@ export default function LoansPage() {
 					</CardHeader>
 				</Card>
 			) : (
-				<div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-					{loans.map((loan) => (
-						<Link key={loan.id} href={`/loans/${loan.title}`}>
-							<LoanSummaryCard
-								title={loan.title}
-								balance={loan.balance}
-								createdAt={loan.createdAt}
-								lastTransaction={loan.transactions[0]}
-								currency={loan.user?.currency || "BDT"}
-							/>
-						</Link>
-					))}
+				<div className='space-y-6'>
+					{/* I am the Lender */}
+					<div>
+						<h2 className='text-lg font-semibold mb-4'>I am the Lender</h2>
+						<div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+							{loans
+								.filter((loan) => loan.balance > 0)
+								.map((loan) => (
+									<Link key={loan.id} href={`/loans/${loan.title}`}>
+										<LoanSummaryCard
+											title={loan.title}
+											balance={loan.balance}
+											createdAt={loan.createdAt}
+											lastTransaction={loan.transactions[0]}
+											currency={loan.user?.currency || "BDT"}
+										/>
+									</Link>
+								))}
+						</div>
+					</div>
+
+					{/* I am the Borrower */}
+					<div>
+						<h2 className='text-lg font-semibold mb-4'>I am the Borrower</h2>
+						<div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+							{loans
+								.filter((loan) => loan.balance < 0)
+								.map((loan) => (
+									<Link key={loan.id} href={`/loans/${loan.title}`}>
+										<LoanSummaryCard
+											title={loan.title}
+											balance={loan.balance}
+											createdAt={loan.createdAt}
+											lastTransaction={loan.transactions[0]}
+											currency={loan.user?.currency || "BDT"}
+										/>
+									</Link>
+								))}
+						</div>
+					</div>
+
+					{/* Completed Loans */}
+					<div>
+						<h2 className='text-lg font-semibold mb-4'>Completed Loans</h2>
+						<div className='grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+							{loans
+								.filter((loan) => loan.balance === 0)
+								.map((loan) => (
+									<Link key={loan.id} href={`/loans/${loan.title}`}>
+										<LoanSummaryCard
+											title={loan.title}
+											balance={loan.balance}
+											createdAt={loan.createdAt}
+											lastTransaction={loan.transactions[0]}
+											currency={loan.user?.currency || "BDT"}
+										/>
+									</Link>
+								))}
+						</div>
+					</div>
 				</div>
 			)}
 		</div>

@@ -72,6 +72,7 @@ export async function POST(req: AuthenticatedRequest) {
 		}
 
 		const body = await req.json();
+
 		const validatedData = createLoanSchema.parse(body);
 
 		// Calculate the actual balance based on type

@@ -202,8 +202,8 @@ export default function LoanDetailsPage() {
 								{loan.transactions.map((transaction) => (
 									<div
 										key={transaction.id}
-										className='flex items-center justify-between rounded-lg border p-4'>
-										<div className='flex items-center gap-3'>
+										className='flex items-center rounded-lg border p-4 flex-wrap gap-4'>
+										<div className='flex items-center gap-3 grow'>
 											<div
 												className={`rounded-full p-2 ${
 													transaction.type === "CREDIT"
@@ -242,7 +242,7 @@ export default function LoanDetailsPage() {
 												</p>
 											</div>
 										</div>
-										<div className='flex items-center gap-4'>
+										<div className='flex items-center gap-4 basis-[250px]'>
 											<p
 												className={`font-medium ${
 													transaction.type === "CREDIT"

@@ -38,7 +38,9 @@ export function LoanSummaryCard({
 				"transition-all hover:scale-[1.02]",
 				balance > 0
 					? "bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/20"
-					: "bg-red-500/5 hover:bg-red-500/10 border-red-500/20",
+					: balance < 0
+					? "bg-red-500/5 hover:bg-red-500/10 border-red-500/20"
+					: "",
 				className
 			)}>
 			<CardHeader>
