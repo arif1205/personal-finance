@@ -19,7 +19,7 @@ export async function GET(
 
 		const loan = await db.loan.findFirst({
 			where: {
-				title,
+				title: title.trim(),
 				userId: user.user.id,
 			},
 			select: {
@@ -38,8 +38,6 @@ export async function GET(
 				user: true,
 			},
 		});
-
-		console.log(loan, user.user, title);
 
 		if (!loan) {
 			return NextResponse.json(
