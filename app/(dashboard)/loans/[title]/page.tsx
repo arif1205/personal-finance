@@ -38,10 +38,13 @@ export default function LoanDetailsPage() {
 				setIsLoading(true);
 
 				const response = await api.get<LoanResponse>(`/loans/${params.title}`);
+				console.log(response);
+
 				if (response.success) {
 					setLoan(response.data.loan);
 				}
 			} catch (error) {
+				console.log(error);
 				setError(
 					error instanceof Error
 						? error.message
