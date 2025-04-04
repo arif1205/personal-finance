@@ -39,6 +39,8 @@ export async function GET(
 			},
 		});
 
+		console.log(loan, user.user, title);
+
 		if (!loan) {
 			return NextResponse.json(
 				{
