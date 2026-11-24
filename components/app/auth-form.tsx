@@ -14,7 +14,9 @@ function safeRedirect(from: string | null) {
 	if (!from) return "/";
 	try {
 		const url = new URL(from, window.location.origin);
-		return url.origin === window.location.origin ? url.pathname + url.search + url.hash : "/";
+		const path = url.pathname + url.search + url.hash;
+		// "//host" or "/\\host" would be read as another site even after the origin check.
+		return url.origin === window.location.origin && !/^\/[\/\\]/.test(path) ? path : "/";
 	} catch {
 		return "/";
 	}
