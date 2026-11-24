@@ -50,7 +50,7 @@ test("sign-in errors are shown in words, and ?from only redirects on-site", asyn
 	await page.getByRole("link", { name: "Profile" }).first().click();
 	await page.getByRole("button", { name: "Sign out" }).click();
 	await expect(page).toHaveURL(/\/login/);
-	await page.goto(`/login?from=${encodeURIComponent("/\\evil.example.com")}`);
+	await page.goto(`/login?from=${encodeURIComponent("http://localhost:3003//evil.example.com")}`);
 	await page.getByLabel("Email").fill(email.toUpperCase());
 	await page.getByLabel("Password", { exact: true }).fill("password123");
 	await page.getByRole("button", { name: "Sign in" }).click();
