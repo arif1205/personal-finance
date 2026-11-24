@@ -1,33 +1,38 @@
+import { TransactionMethod, TransactionType } from "@prisma/client";
 import { z } from "zod";
+import { MAX_AMOUNT } from "@/lib/money";
 
-export const createLoanSchema = z.object({
-	title: z.string().min(1, "Title is required").max(255, "Title is too long"),
-	description: z.string().optional(),
-	initialBalance: z.number().min(0, "Initial balance must be positive"),
-	type: z.enum(["LEND", "BORROW"], {
-		required_error: "Please select whether you're lending or borrowing",
-	}),
-	transactionDetails: z.object({
-		date: z.string().min(1, "Transaction date is required"),
-		method: z.enum([
-			"CASH",
-			"BANK_TRANSFER",
-			"CHECK",
-			"CREDIT_CARD",
-			"DEBIT_CARD",
-			"MOBILE_BANKING",
-			"OTHER",
-		]),
-		methodDetails: z.string().optional(),
-		transactionId: z.string().optional(),
-		description: z.string().optional(),
-	}),
+const optionalText = (max: number) =>
+	z
+		.string()
+		.trim()
+		.max(max, `Keep this under ${max} characters.`)
+		.optional()
+		.nullable()
+		.transform((v) => v || null);
+
+export const transactionSchema = z.object({
+	amount: z
+		.number({ invalid_type_error: "Enter an amount." })
+		.positive("Amount must be more than zero.")
+		.lt(MAX_AMOUNT, "That amount is too large.")
+		.refine((v) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-6, "Use up to 2 decimals."),
+	type: z.nativeEnum(TransactionType),
+	date: z
+		.string()
+		.regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date.")
+		.refine((v) => !Number.isNaN(Date.parse(v)), "Pick a valid date."),
+	method: z.nativeEnum(TransactionMethod),
+	description: optionalText(500),
+	methodDetails: optionalText(200),
+	transactionId: optionalText(100),
 });
 
-export const editLoanSchema = z.object({
-	title: z.string().min(1, "Title is required").max(255, "Title is too long"),
-	description: z.string().optional(),
+export const loanSchema = z.object({
+	title: z.string().trim().min(1, "Enter a name.").max(200, "Keep the name under 200 characters."),
+	description: optionalText(1000),
 });
 
-export type CreateLoanFormValues = z.infer<typeof createLoanSchema>;
-export type EditLoanFormValues = z.infer<typeof editLoanSchema>;
+export const createLoanSchema = loanSchema.extend({ transaction: transactionSchema });
+
+export type TransactionInput = z.input<typeof transactionSchema>;

@@ -19,8 +19,8 @@ export class Auth {
 				name: this.TOKEN_NAME,
 				value: token,
 				httpOnly: true,
-				// secure: process.env.NODE_ENV === "production",
-				// sameSite: "lax",
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "lax",
 				maxAge: 60 * 60 * 24 * 7, // 7 days
 				path: "/",
 			});
@@ -73,18 +73,12 @@ export class Auth {
 	 * Get the current user from server components
 	 */
 	static async getServerUser(): Promise<JWTPayload | null> {
+		// cookies() must stay outside the try: Next signals dynamic rendering by throwing from it.
+		const token = (await cookies()).get(this.TOKEN_NAME)?.value;
+		if (!token) return null;
 		try {
-			const cookieStore = await cookies();
-			const token = cookieStore.get(this.TOKEN_NAME)?.value;
-
-			if (!token) {
-				return null;
-			}
-
-			const user = await JWT.verify(token);
-			return user;
-		} catch (error) {
-			console.error(error);
+			return await JWT.verify(token);
+		} catch {
 			return null;
 		}
 	}
