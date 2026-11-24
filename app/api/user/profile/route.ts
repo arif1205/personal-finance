@@ -1,148 +1,29 @@
-import { errorResponse, successResponse } from "@/lib/api-response";
-import { AuthenticatedRequest, withAuth } from "@/lib/auth";
-import { Hash } from "@/lib/hash";
+import { authedRoute } from "@/lib/api";
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import { Hash } from "@/lib/hash";
 import { Currency } from "@prisma/client";
+import { z } from "zod";
 
-const updateProfileSchema = z
-	.object({
-		name: z.string().min(2, "Name must be at least 2 characters").optional(),
-		currency: z.nativeEnum(Currency).optional(),
-		currentPassword: z.string().optional(),
-		newPassword: z.string().optional(),
-		confirmPassword: z.string().optional(),
-	})
-	.refine(
-		(data) => {
-			const hasCurrentPassword = !!data.currentPassword;
-			const hasNewPassword = !!data.newPassword;
-			const hasConfirmPassword = !!data.confirmPassword;
+const profileSchema = z.object({
+	name: z.string().trim().min(2, "Enter at least 2 characters.").max(80, "Keep your name under 80 characters."),
+	currency: z.nativeEnum(Currency, { message: "Choose a currency." }),
+});
 
-			if (hasCurrentPassword || hasNewPassword || hasConfirmPassword) {
-				if (!hasCurrentPassword) return false;
-				if (!hasNewPassword) return false;
-				if (!hasConfirmPassword) return false;
-				if (data.newPassword !== data.confirmPassword) return false;
-				if (data.newPassword && data.newPassword.length < 6) return false;
-			}
+const passwordSchema = z.object({
+	currentPassword: z.string().min(1, "Enter your current password."),
+	newPassword: z.string().min(8, "Use at least 8 characters.").max(128, "Keep it under 128 characters."),
+});
 
-			return true;
-		},
-		{
-			message:
-				"Please fill all password fields and ensure new passwords match and are at least 6 characters",
+export const PATCH = authedRoute(async ({ userId, req }) => {
+	const body = await req.json();
+	if ("newPassword" in body) {
+		const { currentPassword, newPassword } = passwordSchema.parse(body);
+		const user = await db.user.findUniqueOrThrow({ where: { id: userId }, select: { password: true } });
+		if (!(await Hash.compare(currentPassword, user.password))) {
+			throw new z.ZodError([{ code: "custom", path: ["currentPassword"], message: "Your current password is not correct." }]);
 		}
-	);
-
-export async function GET(req: AuthenticatedRequest) {
-	try {
-		const user = await withAuth(req);
-
-		if (user instanceof NextResponse) {
-			return user;
-		}
-
-		const dbUser = await db.user.findUnique({
-			where: { id: user.user.id },
-			select: {
-				name: true,
-				email: true,
-				currency: true,
-			},
-		});
-
-		if (!dbUser) {
-			return NextResponse.json(errorResponse("User not found"), {
-				status: 404,
-			});
-		}
-
-		return NextResponse.json(
-			successResponse({
-				name: dbUser.name,
-				email: dbUser.email,
-				currency: dbUser.currency,
-			}),
-			{ status: 200 }
-		);
-	} catch (error) {
-		console.error("Error fetching profile:", error);
-		return NextResponse.json(errorResponse("Failed to fetch profile"), {
-			status: 500,
-		});
+		await db.user.update({ where: { id: userId }, data: { password: await Hash.hash(newPassword) } });
+		return;
 	}
-}
-
-export async function PATCH(req: AuthenticatedRequest) {
-	try {
-		const user = await withAuth(req);
-
-		if (user instanceof NextResponse) {
-			return user;
-		}
-
-		const body = await req.json();
-		const validatedData = updateProfileSchema.parse(body);
-
-		// If password is being updated, verify current password
-		if (validatedData.currentPassword) {
-			const dbUser = await db.user.findUnique({
-				where: { id: user.user.id },
-				select: { password: true },
-			});
-
-			if (!dbUser) {
-				return NextResponse.json(errorResponse("User not found"), {
-					status: 404,
-				});
-			}
-
-			const isPasswordValid = await Hash.compare(
-				validatedData.currentPassword,
-				dbUser.password
-			);
-
-			if (!isPasswordValid) {
-				return NextResponse.json(
-					errorResponse("Current password is incorrect"),
-					{ status: 400 }
-				);
-			}
-		}
-
-		// Update user profile
-		const updateData: any = {
-			...(validatedData.name && { name: validatedData.name }),
-			...(validatedData.currency && { currency: validatedData.currency }),
-		};
-
-		// If new password is provided, hash it
-		if (validatedData.newPassword) {
-			updateData.password = await Hash.hash(validatedData.newPassword);
-		}
-
-		// Update the user
-		await db.user.update({
-			where: { id: user.user.id },
-			data: updateData,
-		});
-
-		return NextResponse.json(
-			successResponse(null, "Profile updated successfully"),
-			{ status: 200 }
-		);
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return NextResponse.json(errorResponse(error.errors[0].message), {
-				status: 400,
-			});
-		}
-
-		console.error("Error updating profile:", error);
-		return NextResponse.json(errorResponse("Failed to update profile"), {
-			status: 500,
-		});
-	}
-}
+	await db.user.update({ where: { id: userId }, data: profileSchema.parse(body) });
+});

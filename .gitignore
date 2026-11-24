@@ -43,3 +43,7 @@ next-env.d.ts
 # prisma
 prisma/seed.ts
 .qodo
+
+# playwright
+/test-results/
+/playwright-report/

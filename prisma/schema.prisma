@@ -46,7 +46,7 @@ model User {
 
 model Loan {
   id          String     @id @default(cuid())
-  title       String     @unique
+  title       String
   description String?
   balance     Float      @default(0)
   status      LoanStatus @default(RUNNING)
@@ -57,6 +57,7 @@ model Loan {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
 
+  @@unique([userId, title])
   @@index([userId])
 }
 

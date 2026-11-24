@@ -1,44 +1,24 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { Auth } from "@/lib/auth";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Add paths that don't require authentication
 const publicPaths = ["/login", "/register"];
 
+// Page-level redirect only; every API route and server page checks the session itself.
 export async function middleware(request: NextRequest) {
-	// Check if the path is public
-	const isPublicPath = publicPaths.some((path) =>
-		request.nextUrl.pathname.startsWith(path)
-	);
+	const { pathname, search } = request.nextUrl;
+	const isPublic = publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+	const signedIn = await Auth.isAuthenticated(request);
 
-	const isAuthenticated = await Auth.isAuthenticated(request);
-
-	// Redirect authenticated users away from login page
-	if (isPublicPath && isAuthenticated) {
-		return NextResponse.redirect(new URL("/dashboard", request.url));
+	if (isPublic && signedIn) return NextResponse.redirect(new URL("/", request.url));
+	if (!isPublic && !signedIn) {
+		const login = new URL("/login", request.url);
+		if (pathname !== "/") login.searchParams.set("from", pathname + search);
+		return NextResponse.redirect(login);
 	}
-
-	// Redirect unauthenticated users to login
-	if (!isPublicPath && !isAuthenticated) {
-		const loginUrl = new URL("/login", request.url);
-		loginUrl.searchParams.set("from", request.nextUrl.pathname);
-		return NextResponse.redirect(loginUrl);
-	}
-
 	return NextResponse.next();
 }
 
-// Configure which routes to run middleware on
 export const config = {
-	matcher: [
-		/*
-		 * Match all request paths except:
-		 * - api routes
-		 * - _next/static (static files)
-		 * - _next/image (image optimization files)
-		 * - favicon.ico (favicon file)
-		 * - public files (public folder)
-		 */
-		"/((?!api|_next/static|_next/image|favicon.ico|public).*)",
-	],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|svg|ico|webmanifest|txt)$).*)"],
 };

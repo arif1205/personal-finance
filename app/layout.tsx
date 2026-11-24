@@ -1,40 +1,35 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "./providers/theme-provider";
+import { TimezoneSync } from "@/components/app/timezone-sync";
+import type { Metadata, Viewport } from "next";
+import { ThemeProvider } from "next-themes";
+import { Instrument_Sans } from "next/font/google";
 import { Toaster } from "sonner";
+import "./globals.css";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
 export const metadata: Metadata = {
-	title: "Personal Finance",
-	description: "Manage your personal finances with ease",
+	title: { default: "Personal Finance", template: "%s | Personal Finance" },
+	description: "Keep track of money you lend and borrow.",
 };
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	viewportFit: "cover",
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#F3F5F4" },
+		{ media: "(prefers-color-scheme: dark)", color: "#0E1413" },
+	],
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang='en' suppressHydrationWarning>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}>
-				<ThemeProvider
-					attribute='class'
-					defaultTheme='dark'
-					enableSystem
-					disableTransitionOnChange>
+		<html lang='en' suppressHydrationWarning className={sans.variable}>
+			<body className='min-h-dvh font-sans'>
+				<ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
 					{children}
-					<Toaster richColors position='bottom-right' />
+					<Toaster position='top-center' closeButton toastOptions={{ className: "!rounded-xl !text-[15px] !font-sans" }} />
+					<TimezoneSync />
 				</ThemeProvider>
 			</body>
 		</html>
