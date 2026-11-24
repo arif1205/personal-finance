@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "./auth";
+import { db } from "./db";
 
 export class NotFoundError extends Error {}
 
@@ -11,7 +12,9 @@ type Handler<P> = (ctx: { userId: string; req: NextRequest; params: P }) => Prom
 export function authedRoute<P>(handler: Handler<P>) {
 	return async (req: NextRequest, { params }: { params: Promise<P> }) => {
 		const auth = await authenticateRequest(req);
-		if (!auth.success) return fail("Your session has ended. Sign in again.", 401);
+		// The JWT outlives account changes, so confirm the account still exists and is active.
+		const active = auth.success && (await db.user.count({ where: { id: auth.user.id, status: "ACTIVE" } }));
+		if (!auth.success || !active) return fail("Your session has ended. Sign in again.", 401);
 		try {
 			const data = await handler({ userId: auth.user.id, req, params: await params });
 			return NextResponse.json({ success: true, data: data ?? null });

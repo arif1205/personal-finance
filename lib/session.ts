@@ -8,7 +8,7 @@ export const requireUser = cache(async () => {
 	const session = await Auth.getServerUser();
 	const user = session
 		? await db.user.findUnique({
-				where: { id: session.userId },
+				where: { id: session.userId, status: "ACTIVE" },
 				select: { id: true, name: true, email: true, currency: true },
 		  })
 		: null;

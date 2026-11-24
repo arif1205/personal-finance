@@ -9,9 +9,15 @@ import { revalidateApp } from "@/lib/revalidate";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-// Only same-site paths, so a crafted ?from= link can't send people to another site after sign-in.
+// Only same-origin paths, so a crafted ?from= link can't send people to another site after sign-in.
 function safeRedirect(from: string | null) {
-	return from && from.startsWith("/") && !from.startsWith("//") && !from.startsWith("/\\") ? from : "/";
+	if (!from) return "/";
+	try {
+		const url = new URL(from, window.location.origin);
+		return url.origin === window.location.origin ? url.pathname + url.search + url.hash : "/";
+	} catch {
+		return "/";
+	}
 }
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
